@@ -1,0 +1,38 @@
+[project]
+name = "python-base"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pre-commit>=4.2.0",
+    "pyright>=1.1.400",
+    "ruff>=0.11.10",
+]
+
+# Set curent project as a package, with src/ folder.
+[tool.uv]
+package = true
+
+# Longer than standard 79 char max line length.
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+extend-select = [
+  "E501", # enforce the line-too-long rule
+  "UP",  # pyupgrade
+  "D",   # pydocstyle
+]
+
+# Docstring style numpy (instead of Google).
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+# Set ruff as only a local deps for development.
+[dependency-groups]
+dev = [
+    "ruff>=0.11.10",
+    "pre-commit>=4.2.0",
+    "pyright>=1.1.400",
+]
