@@ -1,38 +1,22 @@
 [project]
-name = "isc301"
+name = "301-week1-ml-project"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+authors = [
+    { name = "CedricTravelletti", email = "cedrictravelletti@gmail.com" }
+]
+requires-python = ">=3.13"
 dependencies = [
-    "pre-commit>=4.2.0",
-    "pyright>=1.1.400",
-    "ruff>=0.11.10",
+    "ipykernel>=6.30.1",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.6",
+    "pandas>=2.3.2",
+    "pyside6>=6.9.2",
+    "scikit-learn>=1.7.2",
+    "seaborn>=0.13.2",
 ]
 
-# Set curent project as a package, with src/ folder.
-[tool.uv]
-package = true
-
-# Longer than standard 79 char max line length.
-[tool.ruff]
-line-length = 99
-
-[tool.ruff.lint]
-extend-select = [
-  "E501", # enforce the line-too-long rule
-  "UP",  # pyupgrade
-  "D",   # pydocstyle
-]
-
-# Docstring style numpy (instead of Google).
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
-# Set ruff as only a local deps for development.
-[dependency-groups]
-dev = [
-    "ruff>=0.11.10",
-    "pre-commit>=4.2.0",
-    "pyright>=1.1.400",
-]
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"

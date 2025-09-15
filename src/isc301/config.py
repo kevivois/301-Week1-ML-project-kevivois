@@ -20,10 +20,8 @@ def load_config(project_root):
 
 config = load_config(project_root)
 
-campaign_name = config["campaign_name"]
-
 raw_data_folder = os.path.join(project_root, config["raw_data_folder"])
 clean_data_folder = os.path.join(project_root, config["clean_data_folder"])
 
-# Campaign-specific folders.
+# Specific datasets paths.
 fuel_consumption_raw_path = os.path.join(raw_data_folder,"fuel_consumption.csv")
