@@ -1,32 +1,43 @@
-# Project template
+# ISC 301, Week 1 Project template
+> This repository serves as a template for the projects of ISC 301 week 1.
 
-This template should be used for every Python project in the lab. It uses:
+## Installation 
+
+1. Install [`uv`](https://docs.astral.sh/uv/) on your system 
+2. Create Python environment by running 
+   ``` 
+   uv sync
+   ```
+3. Try to compile the report template 
+   ```
+   uv run quarto render reports/presentation_project1/presentation.qmd
+   ```
+
+----- 
+
+## Details 
+The template includes the following tools 
 
 - [`uv`](https://docs.astral.sh/uv/) for dependency management.
 - [`ruff`](https://docs.astral.sh/ruff/) for code formatting.
 - [`pyright`](https://github.com/microsoft/pyright) for type checking.
 - [pre-commit](https://pre-commit.com/) hooks for automated validation.
 
-## Dependency management
+### Dependency management
 
 We use [`uv`](https://docs.astral.sh/uv/) for dependency management. It is just as
-full-featured as `poetry`, but much faster. Follow the instructions below to
-create a new project:
+full-featured as `poetry`, but much faster. 
 
-1. Update the name of the project in `pyproject.toml`.
-2. Change the name of the folder `src/python-base` to match the project name.
-3. Run `uv sync` from the root of the repo. 
-This will create a virtual environment and install needed development dependencies.
-4. Add the dependencies you need (and run this same command every time you need
-   a new package):
+- Run `uv sync` to synchronize the environment. This will create a virtual environment and install needed development dependencies.
+- New dependencies can be installed by running
 
    ```sh
-   uv add polars lightgbm
+   uv add polars package-name
    ```
 
-5. Take a look at the `uv`'s [Getting started guide](https://docs.astral.sh/uv/getting-started/).
+Further references in  `uv`'s [Getting started guide](https://docs.astral.sh/uv/getting-started/).
 
-## Pre-commit hooks
+### Pre-commit hooks
 
 First, install [pre-commit](https://pre-commit.com/):
 
@@ -51,20 +62,20 @@ the commit command:
 git commit -m "My message"
 ```
 
-### Code formatting
+#### Code formatting
 
 Among the pre-commit hooks, you will find one that runs
 [`ruff`](https://docs.astral.sh/ruff/) on every Python file. It is also warmly
 recommended that you set up `ruff` in your IDE (e.g., Visual Studio Code, PyCharm).
 
-### Typing
+#### Typing
 
 We recommend the use of [type hints](https://docs.python.org/3/library/typing.html)
 of your code. One of the pre-commit hooks is [`pyright`](https://github.com/microsoft/pyright),
 which will perform type checking when hints are available. This reduces greatly the
 risk of bugs and the maintainability of the code.
 
-## Project Structure 
+### Project Structure 
 Inspired from the [cookiecutter data science template](https://github.com/drivendataorg/cookiecutter-data-science).
 
 ```
@@ -75,7 +86,7 @@ Inspired from the [cookiecutter data science template](https://github.com/driven
 │   ├── processed      <- The final, canonical data sets for modeling.
 │   └── raw            <- The original, immutable data dump.
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── docs               <- Project documentation
 │
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
@@ -83,10 +94,7 @@ Inspired from the [cookiecutter data science template](https://github.com/driven
 │                         the creator's initials, and a short `-` delimited description, e.g.
 │                         `1.0-jqp-initial-data-exploration`.
 │
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         {{ cookiecutter.module_name }} and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+├── pyproject.toml     <- Project configuration file
 │
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── figures        <- Generated graphics and figures to be used in reporting
@@ -94,22 +102,10 @@ Inspired from the [cookiecutter data science template](https://github.com/driven
 ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
 │                         generated with `pip freeze > requirements.txt`
 │
-├── setup.cfg          <- Configuration file for flake8
 │
-└── {{ cookiecutter.module_name }}   <- Source code for use in this project.
+└── {{ src/module_name }}   <- Source code for use in this project.
     │
     ├── __init__.py             <- Makes {{ cookiecutter.module_name }} a Python module
     │
     ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations   
 ```
