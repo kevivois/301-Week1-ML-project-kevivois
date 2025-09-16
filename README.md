@@ -8,7 +8,15 @@
    ``` 
    uv sync
    ```
-3. Try to compile the report template 
+3. Install [pre-commit](https://pre-commit.com/):
+   ```sh
+   uv add install pre-commit
+   ```
+   Then, install the pre-commit hooks:
+   ```sh
+   uv run pre-commit install
+   ```
+4. Try to compile the report template 
    ```
    uv run quarto render reports/presentation_project1/presentation.qmd
    ```
