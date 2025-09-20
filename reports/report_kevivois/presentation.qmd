@@ -1,0 +1,130 @@
+---
+title: "Modèle Prédictif des Prix Immobiliers"
+subtitle: "Analyse et Performance du Modèle de Régression"
+format:
+  revealjs:
+    theme: [default, custom-styles.scss]
+    width: 1920
+    height: 1080
+    margin: 0.04
+    minScale: 0.2
+    maxScale: 2.0
+    slide-number: true
+    incremental: false
+    code-overflow: wrap
+    toc: false
+execute:
+  warning: false
+  message: false
+jupyter: python3
+---
+
+## Business Question
+
+Comment pouvons-nous prédire de manière fiable le prix de vente d'un bien immobilier en nous basant sur ses caractéristiques (surface, qualité, nombre de pièces, etc.) ?
+
+L'objectif est de développer un outil d'aide à la décision pour l'évaluation des biens, afin d'optimiser les stratégies de vente et d'investissement.
+
+---
+
+## Dataset Presentation
+
+Le jeu de données utilisé retrace un historique des ventes de maisons dans un comté américain. Chaque ligne correspond à une transaction et contient les variables suivantes :
+
+| Nom de la colonne | Description |
+| --- | --- |
+| `prix` | **(Variable Cible)** Prix de vente, en USD |
+| `surf_hab` | Surface habitable totale, en m² |
+| `surface_sous_sol` | Surface totale du sous-sol, en m² |
+| `surface_jardin`| Surface du jardin, en m² |
+| `qualite_materiau` | Qualité du matériau de la maison (échelle de 1 à 10) |
+| `qualite_globale` | Qualité globale de la maison (échelle de 1 à 10) |
+| `qualite_cuisine` | Qualité de la cuisine (Excellente, Bonne, Moyenne, Médiocre) |
+| `n_pieces` | Nombre de pièces |
+| `n_chambres_coucher` | Nombre de chambres à coucher |
+| `n_cuisines` | Nombre de cuisines |
+| `n_toilettes` | Nombre de toilettes |
+| `n_cheminees` | Nombre de cheminées |
+| `n_garage_voitures` | Capacité du garage en nombre de voitures |
+| `annee_vente` | Année de vente de la maison |
+| `type_toit` | Type de toit (ex: 2 pans, plat, etc.) |
+| `type_batiment` | Type de bâtiment (ex: maison individuelle, duplex, etc.) |
+
+
+L'objectif est de prédire la variable `prix` en utilisant les autres caractéristiques de la maison.
+
+---
+
+## Exploratory Data Analysis
+
+L'objectif de l'analyse exploratoire était d'identifier les variables ayant le plus fort potentiel pour prédire le prix de vente. Pour ce faire, nous avons calculé la corrélation de chaque caractéristique directement avec le prix.
+
+Le graphique ci-dessous résume ces relations.
+
+<div style="text-align:center;">
+  <img src="/images/correlation_plot.png" style="width:100%; max-width:3000px;">
+</div>
+
+**Observations Clés :**
+* Les variables comme  **qualité des matériaux**,  **surface habitable**,  **surface du sous sol** montrent une très forte corrélation positive avec le prix. Cela confirme qu'elles sont des candidats indispensables pour notre modèle.
+* D'autres variables, bien que moins corrélées, présentent tout de même un intérêt et seront considérées.
+*Nous avons choisi de selectionner toutes les variables du dataset.
+
+
+---
+
+## Modelling
+
+Notre approche de modélisation a été conçue pour capturer des relations complexes tout en assurant la robustesse du modèle.
+
+1.  **Pré-traitement avancé :**
+    * **Gestion des outliers :** Suppression des valeurs extrêmes via la méthode de l'écart interquartile (IQR).
+    * **Normalisation (`StandardScaler`) :** Mise à l'échelle de toutes les variables pour que le modèle les traite de manière équitable.
+
+2.  **Choix du modèle : Régression Polynomiale avec Régularisation Lasso**
+    * **Pourquoi polynomial ?** Pour capturer les relations non-linéaires entre les caractéristiques et le prix.
+    * **Pourquoi Lasso ?** Pour prévenir le surapprentissage. La régularisation Lasso simplifie le modèle en réduisant à zéro le poids des variables les moins importantes, le rendant ainsi plus fiable sur de nouvelles données.
+
+3.  **Sélection des variables par élimination :**
+    * Nous avons utilisé une **approche automatisée** pour identifier les variables qu'il serait bénéfique de **retirer**. Parfois, enlever des features, même si elles semblent utiles, peut améliorer le modèle en réduisant le bruit ou la redondance.
+    * Nous avons systématiquement évalué l'impact de la **suppression** de différentes combinaisons de variables, en recherchant la configuration offrant la meilleure performance sur le jeu de validation.
+    * Afin d'optimiser l'efficacité, nous avons limité le retrait simultané à trois variables. Les tests ont montré que la meilleure performance était obtenue en conservant toutes les variables, à l'exception des variables textuelles (type de ...).
+
+---
+
+## Model Performance and Validation
+
+La véritable valeur d'un modèle se mesure à sa performance sur des données qu'il n'a jamais vues. Nous avons donc évalué notre modèle final sur le **jeu de test**. Les résultats confirment sa grande précision et sa robustesse.
+
+### **Score R² : La performance globale**
+Le modèle obtient un **score R² de 0.81**.
+* **Interprétation :** Cela signifie que notre modèle parvient à **expliquer 81% de la variation des prix de vente**, ce qui est un bon résultat.
+
+### **Erreur Moyenne (Average Residuals) : La précision concrète**
+En moyenne, l'erreur de prédiction absolue du modèle est de **18735.45** USD.
+* **Interprétation :** Sur des maisons qui coutent en moyenne 182715 USD , une marge d'erreur d'environ 10% est plutot correcte.
+
+### **Validation Visuelle : Prix Prédits vs. Prix Réels**
+Le graphique ci-dessous compare les prix prédits par le modèle aux prix réels du jeu de test. L'alignement quasi parfait des points sur la ligne diagonale montre visuellement la très forte correspondance entre nos prédictions et la réalité.
+
+---
+
+<div style="text-align:center;">
+  <img src="/images/test_set_performance.png" style="width:100%; max-width:3000px;">
+</div>
+
+Ces trois indicateurs (score R², erreur moyenne et validation visuelle) convergent pour prouver que le modèle est fiable. 
+
+---
+
+## Business Conclusions and Next Steps
+
+**Conclusions**
+* Le modèle développé est **fiable**. Il peut prédire le prix des maisons avec une précision de 81%.
+* Les facteurs les plus influents sur le prix sont, la **qualité des matériaux**, la **surface habitable** et la **surface du sous sol**.
+* Cet outil constitue un atout stratégique pour l'évaluation rapide et objective de biens immobiliers.
+
+**Prochaines étapes**
+1.  **Déploiement :** Intégrer le modèle dans une interface simple pour une utilisation par les équipes métier.
+2.  **Monitoring :** Suivre les performances du modèle dans le temps et le ré-entraîner périodiquement avec de nouvelles données pour qu'il reste à jour avec le marché.
+3.  **Amélioration continue :** Explorer des modèles plus complexes ou enrichir les données  pour potentiellement gagner les derniers points de précision.
