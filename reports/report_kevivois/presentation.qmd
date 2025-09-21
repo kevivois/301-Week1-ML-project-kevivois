@@ -1,130 +1,111 @@
 ---
-title: "Modèle Prédictif des Prix Immobiliers"
-subtitle: "Analyse et Performance du Modèle de Régression"
+title: "Prédiction des Prix Immobiliers : Une Approche Comparative"
+subtitle: "Analyse et Sélection de Modèles de Régression"
 format:
-  revealjs:
-    theme: [default, custom-styles.scss]
-    width: 1920
-    height: 1080
-    margin: 0.04
-    minScale: 0.2
-    maxScale: 2.0
-    slide-number: true
-    incremental: false
-    code-overflow: wrap
-    toc: false
-execute:
-  warning: false
-  message: false
-jupyter: python3
+  pdf:
+    toc: true
+    number-sections: true
 ---
 
-## Business Question
+# Présentation du Problème
 
-Comment pouvons-nous prédire de manière fiable le prix de vente d'un bien immobilier en nous basant sur ses caractéristiques (surface, qualité, nombre de pièces, etc.) ?
+Notre objectif est de prédire le prix de vente de maisons (problème de **régression supervisée**) à partir de leurs caractéristiques, en utilisant un modèle capable d'inférer une valeur continue.
 
-L'objectif est de développer un outil d'aide à la décision pour l'évaluation des biens, afin d'optimiser les stratégies de vente et d'investissement.
+![](images/inference_map.png){width=90%}
 
 ---
 
-## Dataset Presentation
+# Données et Modèles Testés
+Les données utilisées proviennent d'un jeu de données immobilier, comprenant des caractéristiques telles que la surface, le nombre de pièces, l'année de construction, l'emplacement, etc. Chaque ligne correspond à une maison, avec son prix de vente comme variable cible.
 
-Le jeu de données utilisé retrace un historique des ventes de maisons dans un comté américain. Chaque ligne correspond à une transaction et contient les variables suivantes :
+Nous avons évalué plusieurs modèles de régression, en augmentant progressivement leur complexité :
 
-| Nom de la colonne | Description |
-| --- | --- |
-| `prix` | **(Variable Cible)** Prix de vente, en USD |
-| `surf_hab` | Surface habitable totale, en m² |
-| `surface_sous_sol` | Surface totale du sous-sol, en m² |
-| `surface_jardin`| Surface du jardin, en m² |
-| `qualite_materiau` | Qualité du matériau de la maison (échelle de 1 à 10) |
-| `qualite_globale` | Qualité globale de la maison (échelle de 1 à 10) |
-| `qualite_cuisine` | Qualité de la cuisine (Excellente, Bonne, Moyenne, Médiocre) |
-| `n_pieces` | Nombre de pièces |
-| `n_chambres_coucher` | Nombre de chambres à coucher |
-| `n_cuisines` | Nombre de cuisines |
-| `n_toilettes` | Nombre de toilettes |
-| `n_cheminees` | Nombre de cheminées |
-| `n_garage_voitures` | Capacité du garage en nombre de voitures |
-| `annee_vente` | Année de vente de la maison |
-| `type_toit` | Type de toit (ex: 2 pans, plat, etc.) |
-| `type_batiment` | Type de bâtiment (ex: maison individuelle, duplex, etc.) |
-
-
-L'objectif est de prédire la variable `prix` en utilisant les autres caractéristiques de la maison.
+- **Baseline :** Régression Linéaire simple (`LinearRegression`), qui sert de point de comparaison.
+- **Régression Polynomiale :** Ajout de termes polynomiaux (`PolynomialFeatures`) pour des degrés de 2 à 6, afin de capturer des relations non linéaires.
+- **Modèles Régularisés :** Combinaison de la régression polynomiale avec des techniques de régularisation :
+- **Ridge (L2)** et **Lasso (L1)**, pour des degrés de 2 à 6 et des valeurs de `alpha` de 0 à 1000.
 
 ---
 
-## Exploratory Data Analysis
+# Analyse des Résultats
 
-L'objectif de l'analyse exploratoire était d'identifier les variables ayant le plus fort potentiel pour prédire le prix de vente. Pour ce faire, nous avons calculé la corrélation de chaque caractéristique directement avec le prix.
+Les graphiques ci-dessous présentent les performances des modèles selon deux métriques :
+- **R² (score de détermination)** : mesure la qualité de la prédiction (plus proche de 1 = meilleur).
+- **MAE (erreur absolue moyenne)** : mesure l'écart moyen entre les prix réels et prédits (plus bas = meilleur).
 
-Le graphique ci-dessous résume ces relations.
+**Top 5 configurations R² :**
+- Les meilleurs scores R² sont obtenus avec le modèle **Polynomial Lasso (degré=2, alpha=1000 à 200)**, atteignant jusqu'à **0.859**.
+- À titre de comparaison, le modèle ayant la plus faible MAE (**Polynomial Ridge (degré=2, alpha=200)**) affiche un R² de **0.854**, soit très proche du meilleur modèle R².
 
-<div style="text-align:center;">
-  <img src="/images/correlation_plot.png" style="width:100%; max-width:3000px;">
-</div>
+**Top 5 configurations MAE :**
+- Le modèle **Polynomial Ridge (degré=2, alpha=200)** obtient la plus faible MAE (**$18,410**), ce qui signifie qu'il minimise le coût moyen des erreurs de prédiction.
+- À titre de comparaison, le meilleur modèle R² (**Polynomial Lasso (degré=2, alpha=1000)**) a une MAE de **$18,717**, soit une différence faible par rapport au meilleur MAE.
 
-**Observations Clés :**
-* Les variables comme  **qualité des matériaux**,  **surface habitable**,  **surface du sous sol** montrent une très forte corrélation positive avec le prix. Cela confirme qu'elles sont des candidats indispensables pour notre modèle.
-* D'autres variables, bien que moins corrélées, présentent tout de même un intérêt et seront considérées.
-*Nous avons choisi de selectionner toutes les variables du dataset.
-
-
----
-
-## Modelling
-
-Notre approche de modélisation a été conçue pour capturer des relations complexes tout en assurant la robustesse du modèle.
-
-1.  **Pré-traitement avancé :**
-    * **Gestion des outliers :** Suppression des valeurs extrêmes via la méthode de l'écart interquartile (IQR).
-    * **Normalisation (`StandardScaler`) :** Mise à l'échelle de toutes les variables pour que le modèle les traite de manière équitable.
-
-2.  **Choix du modèle : Régression Polynomiale avec Régularisation Lasso**
-    * **Pourquoi polynomial ?** Pour capturer les relations non-linéaires entre les caractéristiques et le prix.
-    * **Pourquoi Lasso ?** Pour prévenir le surapprentissage. La régularisation Lasso simplifie le modèle en réduisant à zéro le poids des variables les moins importantes, le rendant ainsi plus fiable sur de nouvelles données.
-
-3.  **Sélection des variables par élimination :**
-    * Nous avons utilisé une **approche automatisée** pour identifier les variables qu'il serait bénéfique de **retirer**. Parfois, enlever des features, même si elles semblent utiles, peut améliorer le modèle en réduisant le bruit ou la redondance.
-    * Nous avons systématiquement évalué l'impact de la **suppression** de différentes combinaisons de variables, en recherchant la configuration offrant la meilleure performance sur le jeu de validation.
-    * Afin d'optimiser l'efficacité, nous avons limité le retrait simultané à trois variables. Les tests ont montré que la meilleure performance était obtenue en conservant toutes les variables, à l'exception des variables textuelles (type de ...).
+**Choix du modèle final :**
+Les deux modèles sont très proches en termes de R² et de MAE.
+J'ai choisi le modèle avec la plus faible MAE (**Polynomial Ridge (degré=2, alpha=200)**), car la valeur R² des deux modèles était quasiment identique, et minimiser l'erreur absolue moyenne est plus pertinent pour limiter l'impact financier des erreurs de prédiction.
 
 ---
 
-## Model Performance and Validation
+## Graphs de comparaison des modèles
+![](images/model_comparison_r2.png){width=100%}
 
-La véritable valeur d'un modèle se mesure à sa performance sur des données qu'il n'a jamais vues. Nous avons donc évalué notre modèle final sur le **jeu de test**. Les résultats confirment sa grande précision et sa robustesse.
-
-### **Score R² : La performance globale**
-Le modèle obtient un **score R² de 0.81**.
-* **Interprétation :** Cela signifie que notre modèle parvient à **expliquer 81% de la variation des prix de vente**, ce qui est un bon résultat.
-
-### **Erreur Moyenne (Average Residuals) : La précision concrète**
-En moyenne, l'erreur de prédiction absolue du modèle est de **18735.45** USD.
-* **Interprétation :** Sur des maisons qui coutent en moyenne 182715 USD , une marge d'erreur d'environ 10% est plutot correcte.
-
-### **Validation Visuelle : Prix Prédits vs. Prix Réels**
-Le graphique ci-dessous compare les prix prédits par le modèle aux prix réels du jeu de test. L'alignement quasi parfait des points sur la ligne diagonale montre visuellement la très forte correspondance entre nos prédictions et la réalité.
+Ce graphique compare les scores R² des différents modèles testés, illustrant leur capacité à expliquer la variance des prix immobiliers.
 
 ---
 
-<div style="text-align:center;">
-  <img src="/images/test_set_performance.png" style="width:100%; max-width:3000px;">
-</div>
+## Graphs de comparaison des modèles
+![](images/model_comparison_MAE.png){width=100%}
 
-Ces trois indicateurs (score R², erreur moyenne et validation visuelle) convergent pour prouver que le modèle est fiable. 
+Ce graphique présente la comparaison des erreurs absolues moyennes (MAE) pour chaque modèle, permettant d'évaluer la précision des prédictions.
 
 ---
 
-## Business Conclusions and Next Steps
+# Choix de l'Ordre du Polynôme et Learning Curve
 
-**Conclusions**
-* Le modèle développé est **fiable**. Il peut prédire le prix des maisons avec une précision de 81%.
-* Les facteurs les plus influents sur le prix sont, la **qualité des matériaux**, la **surface habitable** et la **surface du sous sol**.
-* Cet outil constitue un atout stratégique pour l'évaluation rapide et objective de biens immobiliers.
+L'analyse comparative montre que le **degré polynomial 2** offre le meilleur compromis performance/complexité, les degrés supérieurs n'apportant pas d'amélioration significative.
 
-**Prochaines étapes**
-1.  **Déploiement :** Intégrer le modèle dans une interface simple pour une utilisation par les équipes métier.
-2.  **Monitoring :** Suivre les performances du modèle dans le temps et le ré-entraîner périodiquement avec de nouvelles données pour qu'il reste à jour avec le marché.
-3.  **Amélioration continue :** Explorer des modèles plus complexes ou enrichir les données  pour potentiellement gagner les derniers points de précision.
+*La **Learning Curve** ci-dessous confirme que notre modèle de degré 2 généralise bien : les scores d'entraînement et de validation convergent vers une performance élevée, indiquant une faible variance (pas de surapprentissage).*
+
+![](images/learning_curve.png){width=90%}
+
+---
+
+# Présentation de la Régularisation Ajoutée
+
+Pour éviter le surapprentissage, nous avons comparé deux techniques de régularisation : Ridge et Lasso.
+
+- **Lasso (L1) :** Pénalise la somme des valeurs absolues des coefficients . Peut réduire des coefficients à zéro, réalisant ainsi une **sélection de variables**.
+- **Ridge (L2) :** Pénalise la somme des carrés des coefficients. Réduit la magnitude des coefficients pour gérer la multicolinéarité.
+
+Nous avons choisi **Ridge**, car il a produit une **erreur absolue moyenne (MAE) plus faible**, ce qui est plus pertinent pour évaluer l'impact monétaire des erreurs de prédiction.
+
+---
+
+# Meilleur Modèle : Choix et Résultats Finaux
+
+Le meilleur modèle sélectionné est **`PolynomialFeatures(degree=2) + Ridge(alpha=200)`**.
+
+- **Fonction Coût (Ridge) :** Ce modèle minimise la somme des carrés des résidus (RSS) plus une pénalité L2
+
+- **Comparaison Finale (Validation Set) :**
+
+| Modèle | R² | MAE |
+| :--- | :--- | :--- |
+| **Polynomial Ridge (deg=2, α=200)** | **0.854** | **$18410** |
+| Polynomial Lasso (deg=2, α=1000) | 0.859 | $18717 |
+| Régression Linéaire Simple | 0.84 | $19645 |
+
+---
+
+## Résultats sur le Jeu de Test
+
+Le modèle final montre d'excellentes performances de généralisation.
+
+::: {layout-ncol=2}
+![](images/final_model_true_vs_predicted.png){width=95%}
+![](images/final_model_residuals.png){width=95%}
+:::
+
+* mae: 18410  
+* r2_score: 0.854
